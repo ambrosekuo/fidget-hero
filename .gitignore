@@ -7,10 +7,17 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+.pnpm-store
+
+# Build output
 dist
 dist-ssr
 *.local
+
+# Rust / Tauri (src-tauri/.gitignore also covers /target and /gen/schemas)
+src-tauri/target
 
 # Editor directories and files
 .vscode/*
@@ -22,3 +29,14 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# OS
+Thumbs.db
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Cursor (optional local IDE state)
+.cursor

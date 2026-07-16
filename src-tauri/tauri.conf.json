@@ -10,11 +10,20 @@
     "frontendDist": "../dist"
   },
   "app": {
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "fidget-hero",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "transparent": true,
+        "titleBarStyle": "Overlay",
+        "shadow": true,
+        "windowEffects": {
+          "effects": ["hudWindow"],
+          "state": "active",
+          "radius": 24
+        }
       }
     ],
     "security": {

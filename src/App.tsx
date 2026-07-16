@@ -1,16 +1,37 @@
 import { useEffect, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { motion } from "motion/react";
+// import reactLogo from "./assets/react.svg";
+// import { invoke } from "@tauri-apps/api/core";
+import {
+  Effect,
+  EffectState,
+  getCurrentWindow,
+} from "@tauri-apps/api/window";
+import { useWindowDragOffset } from "./hooks/useWindowDragOffset";
 import "./App.css";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  const { x, y } = useWindowDragOffset();
+  // const [greetMsg, setGreetMsg] = useState("");
+  // const [name, setName] = useState("");
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
 
   useEffect(() => {
-    getCurrentWindow()
+    const appWindow = getCurrentWindow();
+
+    appWindow
+      .setBackgroundColor({ red: 0, green: 0, blue: 0, alpha: 0 })
+      .catch(() => {});
+
+    appWindow
+      .setEffects({
+        effects: [Effect.HudWindow],
+        state: EffectState.Active,
+        radius: 24,
+      })
+      .catch(() => {});
+
+    appWindow
       .isAlwaysOnTop()
       .then(setAlwaysOnTop)
       .catch(() => {});
@@ -23,13 +44,25 @@ function App() {
     setAlwaysOnTop(next);
   }
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
+  // async function greet() {
+  //   setGreetMsg(await invoke("greet", { name }));
+  // }
+
+  function handleDragStart(event: React.MouseEvent<HTMLDivElement>) {
+    if (event.button !== 0) return;
+
+    const target = event.target as HTMLElement;
+    if (target.closest("a, button, input, select, textarea, label")) return;
+
+    void getCurrentWindow().startDragging();
   }
 
   return (
-    <>
+    <div
+      className="app-shell"
+      data-tauri-drag-region
+      onMouseDown={handleDragStart}
+    >
       <button
         type="button"
         className={`always-on-top-toggle${alwaysOnTop ? " active" : ""}`}
@@ -39,39 +72,50 @@ function App() {
       >
         Pin
       </button>
-      <main className="container">
-      <h1>Welcome to Tauri + React</h1>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      <motion.div
+        className="red-ball"
+        data-tauri-drag-region
+        style={{ x, y }}
+      />
 
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
-        />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
-    </>
+      {/* <main className="glass-panel glass-surface container" data-tauri-drag-region>
+        <motion.div className="drag-content" style={{ x, y }}>
+        <h1>Welcome to Tauri + React</h1>
+
+        <div className="row logos">
+          <a href="https://vite.dev" target="_blank">
+            <img src="/vite.svg" className="logo vite" alt="Vite logo" />
+          </a>
+          <a href="https://tauri.app" target="_blank">
+            <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
+          </a>
+          <a href="https://react.dev" target="_blank">
+            <img src={reactLogo} className="logo react" alt="React logo" />
+          </a>
+        </div>
+
+        <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+
+        <form
+          className="row"
+          onSubmit={(e) => {
+            e.preventDefault();
+            greet();
+          }}
+        >
+          <input
+            id="greet-input"
+            onChange={(e) => setName(e.currentTarget.value)}
+            placeholder="Enter a name..."
+          />
+          <button type="submit">Greet</button>
+        </form>
+
+        <p>{greetMsg}</p>
+        </motion.div>
+      </main> */}
+    </div>
   );
 }
 
